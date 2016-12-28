@@ -4,14 +4,15 @@ using WebSocketSharp;
 
 public class VRTracker : MonoBehaviour {
 
-	private WebSocket ws;
+	private WebSocket myws;
 	private Vector3 position;
 	private Vector3 orientation;
 	private bool orientationEnabled = false;
 	public Transform CameraTransform; 
+	public Vector3 offset; 
 	// Use this for initialization
 	void Start () {
-	
+		openWebsocket ();
 	}
 	
 	// Update is called once per frame
@@ -24,11 +25,13 @@ public class VRTracker : MonoBehaviour {
 
 	private void OnOpenHandler(object sender, System.EventArgs e) {
 		Debug.Log("VR Tracker : connection established");
-		ws.SendAsync ("user-2", OnSendComplete);
+		//new WaitForSeconds(3);
+		myws.SendAsync ("cmd=mac&uid=ABC123", OnSendComplete);
+		assignATag ();
 	}
 	
 	private void OnMessageHandler(object sender, MessageEventArgs e) {
-
+		//Debug.Log ("VR Tracker : " + e.Data);
 		if (e.Data.Contains ("cmd=position")) {
 			string[] datas = e.Data.Split ('&');
 			foreach (string data in datas){
@@ -36,13 +39,13 @@ public class VRTracker : MonoBehaviour {
 
 				// Position
 				if(datasplit[0] == "x"){
-					position.x = float.Parse(datasplit[1]);
-				}
-				else if(datasplit[0] == "y"){
-					position.y = float.Parse(datasplit[1]);
+					position.x = float.Parse(datasplit[1]) + offset.x;
 				}
 				else if(datasplit[0] == "z"){
-					position.z = float.Parse(datasplit[1]);
+					position.y = float.Parse(datasplit[1]) + offset.y;
+				}
+				else if(datasplit[0] == "y"){
+					position.z = float.Parse(datasplit[1]) + offset.z;
 				}
 
 				// Orientation
@@ -103,6 +106,12 @@ public class VRTracker : MonoBehaviour {
 			if(uid != null && status != null)
 				receiveTagInformations(uid, status, battery);
 			
+		}
+		else if (e.Data.Contains ("cmd=error")) {
+			// TODO Parse differnt kinds of errors
+			myws.SendAsync ("cmd=mac&uid=ABC123", OnSendComplete);
+			assignATag ();
+
 		} else {
 			Debug.Log ("VR Tracker : Unknown data received : " + e.Data);
 		}
@@ -113,7 +122,7 @@ public class VRTracker : MonoBehaviour {
 	}
 	
 	private void OnSendComplete(bool success) {
-		
+		Debug.Log("VR Tracker : Send Complete");
 	}
 
 	/*
@@ -121,11 +130,11 @@ public class VRTracker : MonoBehaviour {
 	 */
 	private void openWebsocket(){
 		Debug.Log("VR Tracker : opening websocket connection");
-		ws = new WebSocket("ws://vrtracker.local:7777/user/");
-		ws.OnOpen += OnOpenHandler;
-		ws.OnMessage += OnMessageHandler;
-		ws.OnClose += OnCloseHandler;
-		ws.ConnectAsync();	
+		myws = new WebSocket("ws://vrtracker.local:7777/user/");
+		myws.OnOpen += OnOpenHandler;
+		myws.OnMessage += OnMessageHandler;
+		myws.OnClose += OnCloseHandler;
+		myws.ConnectAsync();	
 	}
 
 	/*
@@ -133,7 +142,7 @@ public class VRTracker : MonoBehaviour {
 	 */
 	private void closeWebsocket(){
 		Debug.Log("VR Tracker : closing websocket connection");
-		ws.Close();
+		this.myws.Close();
 	}
 
 
@@ -144,7 +153,7 @@ public class VRTracker : MonoBehaviour {
 	 * configuration 
 	 */
 	private void sendMyUID(string uid){
-		ws.SendAsync(uid, OnSendComplete);
+		myws.SendAsync(uid, OnSendComplete);
 	}
 
 	/* 
@@ -152,7 +161,15 @@ public class VRTracker : MonoBehaviour {
 	 * Assigned Tags will then send their position to this device.
 	 */
 	public void assignTag(string TagID){
-		ws.SendAsync("cmd=tagassign&uid=" + TagID, OnSendComplete);
+		myws.SendAsync("cmd=tagassign&uid=" + TagID, OnSendComplete);
+	}
+
+	/* 
+	 * Asks the gateway to assign a Tag to this device.  
+	 * Assigned Tags will then send their position to this device.
+	 */
+	public void assignATag(){
+		myws.SendAsync("cmd=assignatag", OnSendComplete);
 	}
 
 	/* 
@@ -160,7 +177,7 @@ public class VRTracker : MonoBehaviour {
 	 * You will stop receiving updates from this Tag.
 	 */
 	public void unAssignTag(string TagID){
-		ws.SendAsync("cmd=tagunassign&uid=" + TagID, OnSendComplete);
+		myws.SendAsync("cmd=tagunassign&uid=" + TagID, OnSendComplete);
 	}
 
 	/* 
@@ -168,14 +185,14 @@ public class VRTracker : MonoBehaviour {
 	 * You will stop receiving updates from any Tag.
 	 */
 	public void unAssignAllTags(){
-		ws.SendAsync("cmd=tagunassignall", OnSendComplete);
+		myws.SendAsync("cmd=tagunassignall", OnSendComplete);
 	}
 
 	/* 
 	 * Ask for informations on a specific Tag
 	 */
 	public void getTagInformations(string TagID){
-		ws.SendAsync("cmd=taginfos&uid=" + TagID, OnSendComplete);
+		myws.SendAsync("cmd=taginfos&uid=" + TagID, OnSendComplete);
 	}
 
 	/*
@@ -191,7 +208,7 @@ public class VRTracker : MonoBehaviour {
 			en = "false";
 		}
 
-		ws.SendAsync("cmd= orientation&orientation=" + en + "&uid=" + TagID, OnSendComplete);
+		myws.SendAsync("cmd= orientation&orientation=" + en + "&uid=" + TagID, OnSendComplete);
 	}
 
 	/*
@@ -201,7 +218,7 @@ public class VRTracker : MonoBehaviour {
 	 * B (0-255)
 	 */
 	public void setTagColor(string TagID, int red, int green, int blue){
-		ws.SendAsync("cmd= color&r=" + red + "&g=" + green + "&b=" + blue + "&uid=" + TagID, OnSendComplete);
+		myws.SendAsync("cmd= color&r=" + red + "&g=" + green + "&b=" + blue + "&uid=" + TagID, OnSendComplete);
 	}
 
 
@@ -209,7 +226,7 @@ public class VRTracker : MonoBehaviour {
 	 * Send special command to a Tag
 	 */
 	public void sendTagCommand(string TagID, string command){
-		ws.SendAsync("cmd=specialcmd&uid=" + TagID + "&data=" + command, OnSendComplete);
+		myws.SendAsync("cmd=specialcmd&uid=" + TagID + "&data=" + command, OnSendComplete);
 	}
 
 	/* 
@@ -217,7 +234,7 @@ public class VRTracker : MonoBehaviour {
 	 * battery (0-100)
 	 */
 	public void sendUserBattery(int battery){
-		ws.SendAsync("cmd=usrbattery&battery=" + battery, OnSendComplete);
+		myws.SendAsync("cmd=usrbattery&battery=" + battery, OnSendComplete);
 	}
 
 	/*
