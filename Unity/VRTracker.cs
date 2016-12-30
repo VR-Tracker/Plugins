@@ -7,9 +7,16 @@ public class VRTracker : MonoBehaviour {
 	private WebSocket myws;
 	private Vector3 position;
 	private Vector3 orientation;
-	private bool orientationEnabled = false;
+	public int orientationEnabled = 0;
 	public Transform CameraTransform; 
-	public Vector3 offset; 
+	public Vector3 positionOffset; 
+	public Vector3 orientationOffset; 
+	private int counter = 0;
+
+	public string TagUID = "5c:cf:7f:c4:4b:7e";
+	public string UserUID = "ABC123";
+
+	private bool orientationEnablingSent = false;
 	// Use this for initialization
 	void Start () {
 		openWebsocket ();
@@ -18,16 +25,31 @@ public class VRTracker : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		CameraTransform.transform.position = position;
-		//if (orientationEnabled)
-		//	camera.transform.rotation = orientation;
+
+		if (orientationEnabled == 1) {
+			if (!orientationEnablingSent) {
+				Debug.Log ("VR Tracker : asking for orientation");
+				orientationEnablingSent = true;
+				myws.SendAsync ("cmd=mac&uid=" + UserUID, OnSendComplete);
+				assignTag(TagUID);
+				TagOrientation (TagUID, true);
+			}
+			CameraTransform.transform.rotation = Quaternion.Euler (orientation);
+		} else if (counter < 50) {
+			counter++;
+		} else if (counter == 50) {
+			orientationEnabled = 1;
+			counter++;
+		}
 	}
 
 
 	private void OnOpenHandler(object sender, System.EventArgs e) {
 		Debug.Log("VR Tracker : connection established");
 		//new WaitForSeconds(3);
-		myws.SendAsync ("cmd=mac&uid=ABC123", OnSendComplete);
-		assignATag ();
+		myws.SendAsync ("cmd=mac&uid="+UserUID, OnSendComplete);
+		assignTag(TagUID);
+		//assignATag ();
 	}
 	
 	private void OnMessageHandler(object sender, MessageEventArgs e) {
@@ -36,31 +58,31 @@ public class VRTracker : MonoBehaviour {
 			string[] datas = e.Data.Split ('&');
 			foreach (string data in datas){
 				string[] datasplit = data.Split ('=');
-
 				// Position
 				if(datasplit[0] == "x"){
-					position.x = float.Parse(datasplit[1]) + offset.x;
+					position.x = float.Parse(datasplit[1]) + positionOffset.x;
 				}
 				else if(datasplit[0] == "z"){
-					position.y = float.Parse(datasplit[1]) + offset.y;
+					position.y = float.Parse(datasplit[1]) + positionOffset.y;
 				}
 				else if(datasplit[0] == "y"){
-					position.z = float.Parse(datasplit[1]) + offset.z;
+					position.z = float.Parse(datasplit[1]) + positionOffset.z;
 				}
 
 				// Orientation
 				else if(datasplit[0] == "ox"){
-					orientation.x = float.Parse(datasplit[1]);
+					orientation.y = -float.Parse(datasplit[1]) + orientationOffset.y;
 				}
 				else if(datasplit[0] == "oy"){
-					orientation.y = float.Parse(datasplit[1]);
+					orientation.z = -float.Parse(datasplit[1]) + orientationOffset.z;
 				}
 				else if(datasplit[0] == "oz"){
-					orientation.z = float.Parse(datasplit[1]);
+					orientation.x = -float.Parse(datasplit[1]) + orientationOffset.x;
 				}
 			}
 
 		} else if (e.Data.Contains ("cmd=specialcmd")) {
+			Debug.Log ("VR Tracker : " + e.Data);
 			string[] datas = e.Data.Split ('&');
 			string uid = null;
 			string command = null;
@@ -109,10 +131,10 @@ public class VRTracker : MonoBehaviour {
 		}
 		else if (e.Data.Contains ("cmd=error")) {
 			// TODO Parse differnt kinds of errors
-			myws.SendAsync ("cmd=mac&uid=ABC123", OnSendComplete);
-			assignATag ();
-
-		} else {
+			myws.SendAsync ("cmd=mac&uid="+UserUID, OnSendComplete);
+			assignTag(TagUID);
+		} 
+		else {
 			Debug.Log ("VR Tracker : Unknown data received : " + e.Data);
 		}
 	}
@@ -129,8 +151,8 @@ public class VRTracker : MonoBehaviour {
 	 * Opens the websocket connection with the Gateway
 	 */
 	private void openWebsocket(){
-		Debug.Log("VR Tracker : opening websocket connection");
-		myws = new WebSocket("ws://vrtracker.local:7777/user/");
+		//Debug.Log("VR Tracker : opening websocket connection");
+		myws = new WebSocket("ws://192.168.42.1:7777/user/");
 		myws.OnOpen += OnOpenHandler;
 		myws.OnMessage += OnMessageHandler;
 		myws.OnClose += OnCloseHandler;
@@ -201,14 +223,14 @@ public class VRTracker : MonoBehaviour {
 	public void TagOrientation(string TagID, bool enable){
 		string en = "";
 		if (enable) {
-			orientationEnabled = true;
+			orientationEnabled = 1;
 			en = "true";
 		} else {
-			orientationEnabled = false;
+			orientationEnabled = 0;
 			en = "false";
 		}
 
-		myws.SendAsync("cmd= orientation&orientation=" + en + "&uid=" + TagID, OnSendComplete);
+		myws.SendAsync("cmd=orientation&orientation=" + en + "&uid=" + TagID, OnSendComplete);
 	}
 
 	/*
@@ -226,6 +248,7 @@ public class VRTracker : MonoBehaviour {
 	 * Send special command to a Tag
 	 */
 	public void sendTagCommand(string TagID, string command){
+		Debug.Log("VR Tracker : " + command);
 		myws.SendAsync("cmd=specialcmd&uid=" + TagID + "&data=" + command, OnSendComplete);
 	}
 
@@ -255,6 +278,7 @@ public class VRTracker : MonoBehaviour {
 	 * Ensure the Websocket is correctly closed on application quit
 	 */
 	void OnApplicationQuit() {
+		TagOrientation (TagUID, false);
 		closeWebsocket ();
 	}
 
