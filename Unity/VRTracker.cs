@@ -30,8 +30,8 @@ public class VRTracker : MonoBehaviour {
 			if (!orientationEnablingSent) {
 				Debug.Log ("VR Tracker : asking for orientation");
 				orientationEnablingSent = true;
-				myws.SendAsync ("cmd=mac&uid=" + UserUID, OnSendComplete);
-				assignTag(TagUID);
+				//myws.SendAsync ("cmd=mac&uid=" + UserUID, OnSendComplete);
+				//assignTag(TagUID);
 				TagOrientation (TagUID, true);
 			}
 			CameraTransform.transform.rotation = Quaternion.Euler (orientation);
