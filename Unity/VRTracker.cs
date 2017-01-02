@@ -7,9 +7,6 @@ public class VRTracker : MonoBehaviour {
 	private WebSocket myws;
 	private Vector3 position;
 	private Vector3 orientation;
-	public Transform CameraTransform; 
-	public Vector3 positionOffset; 
-	public Vector3 orientationOffset; 
 	private int counter = 0;
 	private VRTrackerTag[] tags;
 
@@ -29,7 +26,7 @@ public class VRTracker : MonoBehaviour {
 	void Update () {
 
 		if (counter == 50) {
-			Debug.Log ("VR Tracker : asking for orientation");
+			Debug.LogError ("VR Tracker : asking for orientation");
 			foreach (VRTrackerTag tag in tags) {
 				if(tag.UID != "Enter Your Tag UID")
 					TagOrientation (tag.UID, true);
@@ -54,7 +51,7 @@ public class VRTracker : MonoBehaviour {
 	}
 	
 	private void OnMessageHandler(object sender, MessageEventArgs e) {
-		//Debug.Log ("VR Tracker : " + e.Data);
+		Debug.Log ("VR Tracker : " + e.Data);
 		if (e.Data.Contains ("cmd=position")) {
 			string[] datas = e.Data.Split ('&');
 			string uid = "";
@@ -62,31 +59,33 @@ public class VRTracker : MonoBehaviour {
 				string[] datasplit = data.Split ('=');
 				// Position
 				if(datasplit[0] == "x"){
-					position.x = float.Parse(datasplit[1]) + positionOffset.x;
+					position.x = float.Parse(datasplit[1]);
 				}
 				else if(datasplit[0] == "z"){
-					position.y = float.Parse(datasplit[1]) + positionOffset.y;
+					position.y = float.Parse(datasplit[1]);
 				}
 				else if(datasplit[0] == "y"){
-					position.z = float.Parse(datasplit[1]) + positionOffset.z;
+					position.z = float.Parse(datasplit[1]);
 				}
 
 				// Orientation
 				else if(datasplit[0] == "ox"){
-					orientation.y = -float.Parse(datasplit[1]) + orientationOffset.y;
+					orientation.y = -float.Parse(datasplit[1]);
 				}
 				else if(datasplit[0] == "oy"){
-					orientation.z = -float.Parse(datasplit[1]) + orientationOffset.z;
+					orientation.x = float.Parse(datasplit[1]);
 				}
 				else if(datasplit[0] == "oz"){
-					orientation.x = -float.Parse(datasplit[1]) + orientationOffset.x;
+					orientation.z = -float.Parse(datasplit[1]);
 				}
 				else if(datasplit[0] == "uid"){
 					uid = datasplit[1];
 				}
 			}
+			Debug.Log ("Yop1");
 			foreach (VRTrackerTag tag in tags) {
 				if (tag.UID == uid) {
+					Debug.Log ("Yop");
 					if(tag.orientationEnbaled == 1)
 						tag.updateOrientation(orientation);
 					tag.updatePosition(position);
