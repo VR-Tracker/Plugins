@@ -26,7 +26,7 @@ public class VRTracker : MonoBehaviour {
 	void Update () {
 
 		if (counter == 50) {
-			Debug.LogError ("VR Tracker : asking for orientation");
+			Debug.Log ("VR Tracker : asking for orientation");
 			foreach (VRTrackerTag tag in tags) {
 				if(tag.UID != "Enter Your Tag UID")
 					TagOrientation (tag.UID, true);
@@ -51,7 +51,7 @@ public class VRTracker : MonoBehaviour {
 	}
 	
 	private void OnMessageHandler(object sender, MessageEventArgs e) {
-		Debug.Log ("VR Tracker : " + e.Data);
+		//Debug.Log ("VR Tracker : " + e.Data);
 		if (e.Data.Contains ("cmd=position")) {
 			string[] datas = e.Data.Split ('&');
 			string uid = "";
@@ -82,10 +82,8 @@ public class VRTracker : MonoBehaviour {
 					uid = datasplit[1];
 				}
 			}
-			Debug.Log ("Yop1");
 			foreach (VRTrackerTag tag in tags) {
 				if (tag.UID == uid) {
-					Debug.Log ("Yop");
 					if(tag.orientationEnbaled == 1)
 						tag.updateOrientation(orientation);
 					tag.updatePosition(position);

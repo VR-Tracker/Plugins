@@ -22,17 +22,15 @@ public class VRTrackerTag : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
 		this.transform.position =  this.position;
 		this.transform.rotation = Quaternion.Euler (orientation);
 	}
 
 	public void updatePosition(Vector3 position){
-		Debug.Log ("Hello");
-		this.position = position;
+		this.position = position + positionOffset;
 	}
 
 	public void updateOrientation(Vector3 orientation){
-		this.orientation = orientation;
+		this.orientation = orientation + orientationOffset;
 	}
 }
