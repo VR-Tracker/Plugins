@@ -17,7 +17,6 @@ public class VRTrackerTag : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
 	}
 	
 	// Update is called once per frame
@@ -32,5 +31,10 @@ public class VRTrackerTag : MonoBehaviour {
 
 	public void updateOrientation(Vector3 orientation){
 		this.orientation = orientation + orientationOffset;
+	}
+
+	public void onSpecialCommand(string data){
+		Debug.Log ("VR Tracker : special command - " + data);
+
 	}
 }

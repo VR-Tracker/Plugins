@@ -284,6 +284,11 @@ public class VRTracker : MonoBehaviour {
 	 */
 	public void receiveSpecialCommand(string TagID, string data){
 		// TODO: You can do whatever you wants with the special command, have fun !
+		foreach (VRTrackerTag tag in tags) {
+			if (tag.UID == TagID) {
+				tag.onSpecialCommand(data);
+			}
+		}
 	}
 
 	/*
