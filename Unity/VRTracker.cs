@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using WebSocketSharp;
+using System.Text.RegularExpressions;
 
 public class VRTracker : MonoBehaviour {
 
@@ -10,10 +11,18 @@ public class VRTracker : MonoBehaviour {
 	private int counter = 0;
 	private VRTrackerTag[] tags;
 
-	public string UserUID = "ABC123";
+	public string UserUID = "";
 
 	// Use this for initialization
 	void Start () {
+
+		// Initialize User ID randomly
+		const string glyphs= "abcdefghijklmnopqrstuvwxyz0123456789"; //add the characters you want
+		for(int i=0; i<12; i++)
+		{
+			UserUID += glyphs[Random.Range(0, glyphs.Length)];
+		}
+
 		openWebsocket ();
 
 		tags = FindObjectsOfType(typeof(VRTrackerTag)) as VRTrackerTag[];
@@ -24,11 +33,10 @@ public class VRTracker : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
 		if (counter == 50) {
 			Debug.Log ("VR Tracker : asking for orientation");
 			foreach (VRTrackerTag tag in tags) {
-				if(tag.UID != "Enter Your Tag UID")
+				if(tag.UID != "Enter Your Tag UID" && tag.orientationEnbaled == 1)
 					TagOrientation (tag.UID, true);
 			}
 			counter++;
@@ -53,42 +61,56 @@ public class VRTracker : MonoBehaviour {
 	private void OnMessageHandler(object sender, MessageEventArgs e) {
 		//Debug.Log ("VR Tracker : " + e.Data);
 		if (e.Data.Contains ("cmd=position")) {
-			string[] datas = e.Data.Split ('&');
-			string uid = "";
-			foreach (string data in datas){
-				string[] datasplit = data.Split ('=');
-				// Position
-				if(datasplit[0] == "x"){
-					position.x = float.Parse(datasplit[1]);
-				}
-				else if(datasplit[0] == "z"){
-					position.y = float.Parse(datasplit[1]);
-				}
-				else if(datasplit[0] == "y"){
-					position.z = float.Parse(datasplit[1]);
+
+			string[] datasbytag = e.Data.Split(new string[] { "&uid=" }, System.StringSplitOptions.RemoveEmptyEntries);
+
+			for(int i=1; i<datasbytag.Length; i++) {
+				
+				bool positionUpdated = false;
+				bool orientationUpdated = false;
+				string[] datas = datasbytag[i].Split ('&');
+				string uid = datas[0];
+				foreach (string data in datas){
+					string[] datasplit = data.Split ('=');
+					// Position
+					if(datasplit[0] == "x"){
+						positionUpdated = true;
+						position.x = float.Parse(datasplit[1]);
+					}
+					else if(datasplit[0] == "z"){
+						position.y = float.Parse(datasplit[1]);
+					}
+					else if(datasplit[0] == "y"){
+						position.z = float.Parse(datasplit[1]);
+					}
+
+					// Orientation
+					else if(datasplit[0] == "ox"){
+						orientationUpdated = true;
+						orientation.y = -float.Parse(datasplit[1]);
+					}
+					else if(datasplit[0] == "oy"){
+						orientation.x = -float.Parse(datasplit[1]);
+					}
+					else if(datasplit[0] == "oz"){
+						orientation.z = float.Parse(datasplit[1]);
+					}
 				}
 
-				// Orientation
-				else if(datasplit[0] == "ox"){
-					orientation.y = -float.Parse(datasplit[1]);
-				}
-				else if(datasplit[0] == "oy"){
-					orientation.x = float.Parse(datasplit[1]);
-				}
-				else if(datasplit[0] == "oz"){
-					orientation.z = -float.Parse(datasplit[1]);
-				}
-				else if(datasplit[0] == "uid"){
-					uid = datasplit[1];
+				foreach (VRTrackerTag tag in tags) {
+					if (tag.UID == uid) {
+						if(tag.orientationEnbaled == 1 && orientationUpdated)
+							tag.updateOrientation(orientation);
+						if (positionUpdated) {
+							tag.updatePosition (position);
+						}
+					}
 				}
 			}
-			foreach (VRTrackerTag tag in tags) {
-				if (tag.UID == uid) {
-					if(tag.orientationEnbaled == 1)
-						tag.updateOrientation(orientation);
-					tag.updatePosition(position);
-				}
-			}
+
+
+
+
 
 		} else if (e.Data.Contains ("cmd=specialcmd")) {
 			Debug.Log ("VR Tracker : " + e.Data);
@@ -148,7 +170,7 @@ public class VRTracker : MonoBehaviour {
 		}
 		else if (e.Data.Contains ("cmd=error")) {
 			// TODO Parse differnt kinds of errors
-			Debug.LogError("VR Tracker : " + e.Data);
+			Debug.LogWarning("VR Tracker : " + e.Data);
 			myws.SendAsync ("cmd=mac&uid="+UserUID, OnSendComplete);
 			foreach (VRTrackerTag tag in tags) {
 				if(tag.UID != "Enter Your Tag UID")
