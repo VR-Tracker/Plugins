@@ -156,9 +156,7 @@ public class VRTracker : MonoBehaviour {
 					battery = int.Parse(datasplit[1]);
 				}
 			}
-			if (uid != null && status != null)
-				receiveTagInformations (uid, status, battery);
-			else {
+			if (uid != null && status != null){
 				foreach (VRTrackerTag tag in tags) {
 					if (tag.UID == uid) {
 						tag.status = status;
@@ -171,10 +169,13 @@ public class VRTracker : MonoBehaviour {
 		else if (e.Data.Contains ("cmd=error")) {
 			// TODO Parse differnt kinds of errors
 			Debug.LogWarning("VR Tracker : " + e.Data);
-			myws.SendAsync ("cmd=mac&uid="+UserUID, OnSendComplete);
-			foreach (VRTrackerTag tag in tags) {
-				if(tag.UID != "Enter Your Tag UID")
-					assignTag(tag.UID);
+
+			if (e.Data.Contains ("needmacadress")) {
+				myws.SendAsync ("cmd=mac&uid=" + UserUID, OnSendComplete);
+				foreach (VRTrackerTag tag in tags) {
+					if (tag.UID != "Enter Your Tag UID")
+						assignTag (tag.UID);
+				}
 			}
 		} 
 		else {
