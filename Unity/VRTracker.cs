@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using WebSocketSharp;
 using System.Text.RegularExpressions;
@@ -113,7 +113,7 @@ public class VRTracker : MonoBehaviour {
 
 
 		} else if (e.Data.Contains ("cmd=specialcmd")) {
-			Debug.Log ("VR Tracker : " + e.Data);
+//			Debug.Log ("VR Tracker : " + e.Data);
 			string[] datas = e.Data.Split ('&');
 			string uid = null;
 			string command = null;
