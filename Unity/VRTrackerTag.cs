@@ -12,7 +12,7 @@ public class VRTrackerTag : MonoBehaviour {
 	private Vector3 position;
 	private Vector3 orientation;
 	private Vector3 orientationBegin;
-	private bool initialOrientationSet = false;
+	private int initialOrientationSetCounter = 0;
 
 	public int orientationEnbaled = 0;
 
@@ -54,12 +54,14 @@ public class VRTrackerTag : MonoBehaviour {
 	}
 
 	public void updateOrientation(Vector3 orientation){
-		if (!initialOrientationSet) {
-			initialOrientationSet = true;
+		if (initialOrientationSetCounter == 50) {
 			orientationBegin.y = orientation.y;
+			initialOrientationSetCounter++;
+		} else if (initialOrientationSetCounter < 50) {
+			initialOrientationSetCounter++;
+		} else {
+			this.orientation = orientation + orientationOffset - orientationBegin;
 		}
-
-		this.orientation = orientation + orientationOffset - orientationBegin;
 
 	}
 
