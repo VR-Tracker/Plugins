@@ -19,12 +19,14 @@ In Unity, we provide directly an version of our SDK with UNET, (Photon will come
 
 ### Tutorial 
 
-You can find more information on how to use the Plugin on our website 
+You can find more information on how to use the Plugin on our website [VR Tracker](https://vrtracker.xyz/api/).
 
 ### Examples
 
 You can find different example on how to use the SDK on the [VR Tracker Examples git](https://github.com/VR-Tracker/Examples) 
 
+### FAQ
+Check our FAQ for the common questions, if you have any issue, post it on the git or send us an email at : support@vrtracker.xyz
 
 ## Versioning
 
