@@ -10,7 +10,7 @@ The different SDK will enable your application to communicate with VR Tracker sy
 ### Prerequisites
 
 Unity SDK
-* Install Unity 2017 or later (The SDK should work on 5.6, as it has been first develop on it)
+* Install Unity 2017 or later (The SDK should work on 5.6, as it has been first developed on it)
 
 ### Choose your networking solution
 
