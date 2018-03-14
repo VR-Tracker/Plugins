@@ -17,10 +17,13 @@ Unity SDK
 Providing multiplayer experience implies to network all the different information to all the users. You can either choose to use your own networking system, or base your development on one of the networking solution that already exist.
 In Unity, we provide directly an version of our SDK with UNET, (Photon will come soon...). If you want to use your own networking, you can just
 
+### Tutorial 
+
+You can find more information on how to use the Plugin on our website 
 
 ### Examples
 
-You can find different example on how to use the SDK on [the VR Tracker Examples git](https://github.com/VR-Tracker/Examples) 
+You can find different example on how to use the SDK on the [VR Tracker Examples git](https://github.com/VR-Tracker/Examples) 
 
 
 ## Versioning
