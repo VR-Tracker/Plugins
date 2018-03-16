@@ -31,9 +31,9 @@ You can find different example on how to use the SDK on the [VR Tracker Examples
 ### FAQ
 Check our FAQ for the common questions, if you have any issue, post it on the git or send us an email at : support@vrtracker.xyz
 
-## Versioning
+## Release
 
-Find the different information the [version](https://github.com/VR-Tracker/Plugins/releases)
+Find the different information the [releases](https://github.com/VR-Tracker/Plugins/releases)
 
 ## Contributing
 
