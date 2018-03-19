@@ -29,7 +29,7 @@ If you want to use UNET, here are the link on how to integrate our system:
 You can find different example on how to use the SDK on the [VR Tracker Examples git](https://github.com/VR-Tracker/Examples) 
 
 ### FAQ
-Check our FAQ for the common questions, if you have any issue, post it on the git or send us an email at : support@vrtracker.xyz
+Check our [FAQ](https://vrtracker.xyz/faq/) for the common questions, if you have any issue, post it on the git or send us an email at : support@vrtracker.xyz
 
 ## Release
 
