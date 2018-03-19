@@ -15,7 +15,7 @@ Unity SDK
 ### Choose your networking solution
 
 Providing multiplayer experience implies to network all the different information to all the users. You can either choose to use your own networking system, or base your development on one of the networking solution that already exist.
-In Unity, we provide directly an version of our SDK with UNET, (Photon will come soon...). If you want to use your own networking, you can just
+In Unity, we provide directly an version of our SDK with UNET, (Photon will come soon...). If you want to use your own networking, you can just get the files and use them in your current networking system. If you need any help, send us an email at support@vrtracker.xyz.
 
 ### Tutorial 
 
@@ -33,7 +33,7 @@ Check our FAQ for the common questions, if you have any issue, post it on the gi
 
 ## Release
 
-Find the different information the [releases](https://github.com/VR-Tracker/Plugins/releases)
+Find the different information on the [releases](https://github.com/VR-Tracker/Plugins/releases)
 
 ## Contributing
 
