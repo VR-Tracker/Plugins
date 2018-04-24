@@ -1,6 +1,6 @@
 # VR Tracker Plugins
 
-## UDPATE April 2018 - V3
+## UPDATE April 2018 - V3
 As of now a new version of the plugin is available for **Tag V2 and over only**. This version is completely new and not compatible with previous versions. If you have a previous version in your project, please delete the *VR Tracker* folder before improting the new plugin. Finally an extensiv documentation can be found in the link below.
 [VRTracker SDK V3 and Documentation](https://www.notion.so/vrtracker/VR-Tracker-Unity-Plugin-V3-5aad172e672944c1a4f47a5ac2c8e72d)
 
